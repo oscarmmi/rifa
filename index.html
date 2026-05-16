@@ -470,24 +470,36 @@
             renderExportGrid();
 
             const exportArea = document.getElementById('exportArea');
+            exportArea.style.visibility = 'hidden';
+            exportArea.style.position = 'absolute';
             exportArea.classList.remove('hidden');
+            exportArea.style.width = '800px';
+            exportArea.style.minHeight = '600px';
 
-            try {
-                const canvas = await html2canvas(exportArea, {
-                    backgroundColor: '#ffffff',
-                    scale: 2
-                });
+            setTimeout(async () => {
+                try {
+                    const canvas = await html2canvas(exportArea, {
+                        backgroundColor: '#ffffff',
+                        scale: 3,
+                        useCORS: true,
+                        logging: false
+                    });
 
-                const link = document.createElement('a');
-                link.download = 'rifa-' + (appData.settings.raffle_date || 'image') + '.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            } catch (error) {
-                console.error('Error al exportar:', error);
-                alert('Error al exportar la imagen');
-            } finally {
-                exportArea.classList.add('hidden');
-            }
+                    const link = document.createElement('a');
+                    link.download = 'rifa-' + (appData.settings.raffle_date || 'image') + '.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                } catch (error) {
+                    console.error('Error al exportar:', error);
+                    alert('Error al exportar la imagen');
+                } finally {
+                    exportArea.style.visibility = '';
+                    exportArea.style.position = '';
+                    exportArea.style.width = '';
+                    exportArea.style.minHeight = '';
+                    exportArea.classList.add('hidden');
+                }
+            }, 100);
         }
 
         // Iniciar App
