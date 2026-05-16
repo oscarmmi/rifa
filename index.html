@@ -430,13 +430,16 @@
 
             appData.tickets.forEach(ticket => {
                 const cell = document.createElement('div');
-                cell.className = 'aspect-square flex items-center justify-center font-bold text-lg border-2 border-gray-400';
+                cell.className = 'aspect-square flex items-center justify-center font-bold text-lg border-2 rounded-lg';
 
                 if (ticket.status === 'available') {
-                    cell.classList.add('bg-white');
+                    cell.classList.add('bg-white', 'border-gray-300', 'text-gray-700');
                     cell.textContent = ticket.ticket_number;
+                } else if (ticket.status === 'reserved') {
+                    cell.classList.add('bg-yellow-100', 'border-yellow-400', 'text-yellow-700');
+                    cell.textContent = 'X';
                 } else {
-                    cell.classList.add('bg-gray-200');
+                    cell.classList.add('bg-blue-500', 'border-blue-600', 'text-white');
                     cell.textContent = 'X';
                 }
 
