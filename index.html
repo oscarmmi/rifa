@@ -411,17 +411,24 @@
             });
         }
 
-        function updateExportHeader() {
-            document.getElementById('exportTitle').textContent = 'GRAN RIFA';
-            document.getElementById('exportPrize').textContent = 'Premio: ' + (appData.settings.prize || '-');
-            document.getElementById('exportLottery').textContent = 'Lotería: ' + (appData.settings.lottery || '-');
-
+function updateExportHeader() {
+            let dateText = '';
             if (appData.settings.raffle_date) {
                 const dateParts = appData.settings.raffle_date.split('-');
                 if (dateParts.length === 3) {
                     const formattedDate = dateParts[2] + '/' + dateParts[1] + '/' + dateParts[0];
-                    document.getElementById('exportDate').textContent = 'Fecha: ' + formattedDate;
+                    dateText = 'Juega el ' + formattedDate;
                 }
+            } else {
+                dateText = 'Juega el --/--/----';
+            }
+
+            document.getElementById('exportTitle').innerHTML = 'GRAN RIFA<br><span class="text-lg font-normal">' + dateText + '</span>';
+            document.getElementById('exportPrize').textContent = 'Premio: ' + (appData.settings.prize || '-');
+            document.getElementById('exportLottery').textContent = 'Lotería: ' + (appData.settings.lottery || '-');
+            document.getElementById('exportDate').textContent = '';
+            document.getElementById('exportPrice').textContent = 'Valor: $' + new Intl.NumberFormat('es-CO').format(appData.settings.ticket_price || 0);
+        }
             } else {
                 document.getElementById('exportDate').textContent = 'Fecha: -';
             }
