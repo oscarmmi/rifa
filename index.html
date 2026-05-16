@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestor de Rifa Colombiana</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         .grid-numbers {
             display: grid;
@@ -26,8 +27,14 @@
         .status-available { background-color: #f3f4f6; color: #374151; border: 2px solid #d1d5db; }
         .status-reserved { background-color: #fef08a; color: #854d0e; border: 2px solid #facc15; }
         .status-paid { background-color: #3b82f6; color: white; border: 2px solid #2563eb; }
-        
+
         [v-cloak] { display: none; }
+
+        @media print {
+            body * { visibility: hidden; }
+            #exportArea, #exportArea * { visibility: visible; }
+            #exportArea { position: absolute; left: 0; top: 0; }
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen pb-20">
@@ -120,8 +127,25 @@
         </div>
 
         <!-- Cuadrícula de Números -->
+        <div class="flex justify-end mb-4">
+            <button onclick="exportToImage()" class="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2">
+                📥 Exportar Imagen
+            </button>
+        </div>
         <div id="ticketGrid" class="grid-numbers">
             <!-- Los números se generarán aquí con JS -->
+        </div>
+
+        <!-- Área oculta para exportar -->
+        <div id="exportArea" class="bg-white p-8 hidden">
+            <div id="exportHeader" class="text-center mb-6 border-b-2 border-gray-300 pb-4">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2" id="exportTitle">RIFA</h2>
+                <p class="text-lg text-gray-600" id="exportPrize"></p>
+                <p class="text-gray-600" id="exportLottery"></p>
+                <p class="text-gray-600" id="exportDate"></p>
+                <p class="text-xl font-bold text-blue-600 mt-2" id="exportPrice"></p>
+            </div>
+            <div id="exportGrid" class="grid-numbers bg-white p-4"></div>
         </div>
     </div>
 
@@ -174,14 +198,15 @@
             try {
                 const response = await fetch('api.php?action=get_all');
                 appData = await response.json();
-                
+
                 document.getElementById('prizeInput').value = appData.settings.prize;
                 document.getElementById('priceInput').value = appData.settings.ticket_price;
                 document.getElementById('raffleDateInput').value = appData.settings.raffle_date || '';
                 document.getElementById('lotteryInput').value = appData.settings.lottery || '';
-                
+
                 renderGrid();
                 updateStats();
+                updateExportHeader();
             } catch (error) {
                 console.error('Error al cargar datos:', error);
                 alert('No se pudo conectar con el servidor. Verifica tu configuración de base de datos.');
@@ -240,6 +265,7 @@
                 appData.settings.raffle_date = raffleDate;
                 appData.settings.lottery = lottery;
                 updateStats();
+                updateExportHeader();
                 alert('Configuración guardada');
             }
         }
@@ -316,6 +342,69 @@
         window.onclick = function(event) {
             const modal = document.getElementById('modal');
             if (event.target == modal) closeModal();
+        }
+
+        function renderExportGrid() {
+            const exportGrid = document.getElementById('exportGrid');
+            exportGrid.innerHTML = '';
+
+            appData.tickets.forEach(ticket => {
+                const cell = document.createElement('div');
+                cell.className = 'aspect-square flex items-center justify-center font-bold text-lg border-2 border-gray-400';
+
+                if (ticket.status === 'available') {
+                    cell.classList.add('bg-white');
+                    cell.textContent = ticket.ticket_number;
+                } else {
+                    cell.classList.add('bg-gray-200');
+                    cell.textContent = 'X';
+                }
+
+                exportGrid.appendChild(cell);
+            });
+        }
+
+        function updateExportHeader() {
+            document.getElementById('exportTitle').textContent = 'RIFA';
+            document.getElementById('exportPrize').textContent = 'Premio: ' + (appData.settings.prize || '-');
+            document.getElementById('exportLottery').textContent = 'Lotería: ' + (appData.settings.lottery || '-');
+
+            if (appData.settings.raffle_date) {
+                const dateParts = appData.settings.raffle_date.split('-');
+                if (dateParts.length === 3) {
+                    const formattedDate = dateParts[2] + '/' + dateParts[1] + '/' + dateParts[0];
+                    document.getElementById('exportDate').textContent = 'Fecha: ' + formattedDate;
+                }
+            } else {
+                document.getElementById('exportDate').textContent = 'Fecha: -';
+            }
+
+            document.getElementById('exportPrice').textContent = 'Valor: $' + new Intl.NumberFormat('es-CO').format(appData.settings.ticket_price || 0);
+        }
+
+        async function exportToImage() {
+            updateExportHeader();
+            renderExportGrid();
+
+            const exportArea = document.getElementById('exportArea');
+            exportArea.classList.remove('hidden');
+
+            try {
+                const canvas = await html2canvas(exportArea, {
+                    backgroundColor: '#ffffff',
+                    scale: 2
+                });
+
+                const link = document.createElement('a');
+                link.download = 'rifa-' + (appData.settings.raffle_date || 'image') + '.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } catch (error) {
+                console.error('Error al exportar:', error);
+                alert('Error al exportar la imagen');
+            } finally {
+                exportArea.classList.add('hidden');
+            }
         }
 
         // Iniciar App
