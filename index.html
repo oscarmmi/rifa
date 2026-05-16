@@ -179,12 +179,45 @@
 
         <!-- Área oculta para exportar -->
         <div id="exportArea" class="bg-white p-8 hidden">
-            <div id="exportHeader" class="text-center mb-6 border-b-2 border-gray-300 pb-4">
-                <h2 class="text-2xl font-bold text-gray-800 mb-2" id="exportTitle">RIFA</h2>
-                <p class="text-lg text-gray-600" id="exportPrize"></p>
-                <p class="text-gray-600" id="exportLottery"></p>
-                <p class="text-gray-600" id="exportDate"></p>
-                <p class="text-xl font-bold text-blue-600 mt-2" id="exportPrice"></p>
+            <div id="exportHeader" class="mb-6 border-b-2 border-gray-300 pb-4">
+                <h2 class="text-2xl font-bold text-gray-800 text-center mb-2" id="exportTitle">GRAN RIFA</h2>
+                <p class="text-lg text-gray-600 text-center" id="exportDateText"></p>
+
+                <div class="flex justify-between mt-6 px-4">
+                    <!-- Left: Medios de Pago -->
+                    <div class="text-center">
+                        <p class="font-bold text-gray-800 mb-3">MEDIOS DE PAGO</p>
+
+                        <div class="mb-3">
+                            <svg class="mx-auto mb-1" width="50" height="30" viewBox="0 0 50 30" fill="none">
+                                <rect x="2" y="5" width="46" height="20" rx="2" fill="#85bb65" stroke="#5a9e3a" stroke-width="1"/>
+                                <circle cx="15" cy="15" r="6" fill="#5a9e3a" opacity="0.3"/>
+                                <text x="30" y="19" font-size="8" fill="#fff" font-weight="bold">$</text>
+                            </svg>
+                            <p class="text-sm text-gray-600">Efectivo</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <svg class="mx-auto mb-1" width="50" height="30" viewBox="0 0 50 30" fill="none">
+                                <rect x="2" y="5" width="46" height="20" rx="2" fill="#4a90d9" stroke="#2e5a8a" stroke-width="1"/>
+                                <rect x="8" y="10" width="15" height="10" fill="#fff" opacity="0.3"/>
+                                <line x1="8" y1="15" x2="23" y2="15" stroke="#fff" stroke-width="1"/>
+                                <text x="28" y="19" font-size="6" fill="#fff" font-weight="bold">BANK</text>
+                            </svg>
+                            <p class="text-sm text-gray-600">Transferencia</p>
+                        </div>
+
+                        <p class="text-xs text-gray-500 mt-2">No olvides mandar tu<br>comprobante de pago</p>
+                    </div>
+
+                    <!-- Right: Lottery Info -->
+                    <div class="text-center">
+                        <p class="font-bold text-gray-800 mb-3">LOTERÍA</p>
+                        <p class="text-lg text-gray-700 mb-3" id="exportLotteryName"></p>
+                        <p class="text-gray-600" id="exportTicketPrice"></p>
+                        <p class="text-gray-600" id="exportPrizeText"></p>
+                    </div>
+                </div>
             </div>
             <div id="exportGrid" class="grid-numbers bg-white p-4"></div>
         </div>
@@ -411,7 +444,7 @@
             });
         }
 
-function updateExportHeader() {
+        function updateExportHeader() {
             let dateText = '';
             if (appData.settings.raffle_date) {
                 const dateParts = appData.settings.raffle_date.split('-');
@@ -424,16 +457,9 @@ function updateExportHeader() {
             }
 
             document.getElementById('exportTitle').innerHTML = 'GRAN RIFA<br><span class="text-lg font-normal">' + dateText + '</span>';
-            document.getElementById('exportPrize').textContent = 'Premio: ' + (appData.settings.prize || '-');
-            document.getElementById('exportLottery').textContent = 'Lotería: ' + (appData.settings.lottery || '-');
-            document.getElementById('exportDate').textContent = '';
-            document.getElementById('exportPrice').textContent = 'Valor: $' + new Intl.NumberFormat('es-CO').format(appData.settings.ticket_price || 0);
-        }
-            } else {
-                document.getElementById('exportDate').textContent = 'Fecha: -';
-            }
-
-            document.getElementById('exportPrice').textContent = 'Valor: $' + new Intl.NumberFormat('es-CO').format(appData.settings.ticket_price || 0);
+            document.getElementById('exportLotteryName').textContent = appData.settings.lottery || '-';
+            document.getElementById('exportTicketPrice').textContent = 'Valor: $' + new Intl.NumberFormat('es-CO').format(appData.settings.ticket_price || 0);
+            document.getElementById('exportPrizeText').textContent = 'Premio: ' + (appData.settings.prize || '-');
         }
 
         async function exportToImage() {
