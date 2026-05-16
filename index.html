@@ -20,6 +20,16 @@
             gap: 8px;
         }
 
+        .export-ticket-cell {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            border-radius: 8px;
+            border: 2px solid;
+        }
+
         .ticket-btn {
             aspect-ratio: 1 / 1;
             display: flex;
@@ -436,16 +446,22 @@
 
             appData.tickets.forEach(ticket => {
                 const cell = document.createElement('div');
-                cell.className = 'aspect-square flex items-center justify-center font-bold text-lg border-2 rounded-lg';
+                cell.className = 'export-ticket-cell';
 
                 if (ticket.status === 'available') {
-                    cell.classList.add('bg-white', 'border-gray-300', 'text-gray-700');
+                    cell.style.backgroundColor = '#f9fafb';
+                    cell.style.borderColor = '#d1d5db';
+                    cell.style.color = '#374151';
                     cell.textContent = ticket.ticket_number;
                 } else if (ticket.status === 'reserved') {
-                    cell.classList.add('bg-yellow-100', 'border-yellow-400', 'text-yellow-700');
+                    cell.style.backgroundColor = '#fef9c3';
+                    cell.style.borderColor = '#facc15';
+                    cell.style.color = '#854d0e';
                     cell.textContent = 'X';
                 } else {
-                    cell.classList.add('bg-blue-500', 'border-blue-600', 'text-white');
+                    cell.style.backgroundColor = '#3b82f6';
+                    cell.style.borderColor = '#2563eb';
+                    cell.style.color = '#ffffff';
                     cell.textContent = 'X';
                 }
 
