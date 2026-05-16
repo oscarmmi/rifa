@@ -470,17 +470,16 @@
             renderExportGrid();
 
             const exportArea = document.getElementById('exportArea');
-            exportArea.style.visibility = 'hidden';
-            exportArea.style.position = 'absolute';
             exportArea.classList.remove('hidden');
-            exportArea.style.width = '800px';
-            exportArea.style.minHeight = '600px';
+            exportArea.style.position = 'absolute';
+            exportArea.style.left = '-9999px';
+            exportArea.style.top = '0';
 
             setTimeout(async () => {
                 try {
                     const canvas = await html2canvas(exportArea, {
                         backgroundColor: '#ffffff',
-                        scale: 3,
+                        scale: 2,
                         useCORS: true,
                         logging: false
                     });
@@ -493,13 +492,12 @@
                     console.error('Error al exportar:', error);
                     alert('Error al exportar la imagen');
                 } finally {
-                    exportArea.style.visibility = '';
                     exportArea.style.position = '';
-                    exportArea.style.width = '';
-                    exportArea.style.minHeight = '';
+                    exportArea.style.left = '';
+                    exportArea.style.top = '';
                     exportArea.classList.add('hidden');
                 }
-            }, 100);
+            }, 200);
         }
 
         // Iniciar App
