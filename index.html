@@ -7,6 +7,7 @@
     <title>Gestor de Rifa Colombiana</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
         .grid-numbers {
             display: grid;
@@ -187,6 +188,10 @@
 
         <!-- Cuadrícula de Números -->
         <div class="flex justify-end mb-4">
+            <button onclick="exportToExcel()"
+                class="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2 mr-2">
+                📥 Exportar Excel
+            </button>
             <button onclick="exportToImage()"
                 class="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2">
                 📥 Exportar Imagen
@@ -519,6 +524,43 @@
                     exportArea.classList.add('hidden');
                 }
             }, 200);
+        }
+
+        function exportToExcel() {
+            const wb = XLSX.utils.book_new();
+
+            const settingsData = [
+                ['Configuración de la Rifa'],
+                ['Premio', appData.settings.prize || '-'],
+                ['Valor del Número', appData.settings.ticket_price || 0],
+                ['Fecha de la Rifa', appData.settings.raffle_date || '-'],
+                ['Lotería', appData.settings.lottery || '-'],
+                [],
+                ['Estadísticas'],
+                ['Disponibles', appData.tickets.filter(t => t.status === 'available').length],
+                ['Reservados', appData.tickets.filter(t => t.status === 'reserved').length],
+                ['Pagados', appData.tickets.filter(t => t.status === 'paid').length],
+                ['Total Recaudado', appData.tickets.filter(t => t.status === 'paid').length * (appData.settings.ticket_price || 0)]
+            ];
+            const wsSettings = XLSX.utils.aoa_to_sheet(settingsData);
+            wsSettings['!cols'] = [{ wch: 20 }, { wch: 40 }];
+            XLSX.utils.book_append_sheet(wb, wsSettings, 'Configuración');
+
+            const ticketData = [['Número', 'Estado', 'Nombre Comprador', 'Teléfono']];
+            const statusLabels = { available: 'Disponible', reserved: 'Reservado', paid: 'Pagado' };
+            appData.tickets.forEach(ticket => {
+                ticketData.push([
+                    ticket.ticket_number,
+                    statusLabels[ticket.status] || ticket.status,
+                    ticket.buyer_name || '',
+                    ticket.buyer_phone || ''
+                ]);
+            });
+            const wsTickets = XLSX.utils.aoa_to_sheet(ticketData);
+            wsTickets['!cols'] = [{ wch: 10 }, { wch: 12 }, { wch: 30 }, { wch: 20 }];
+            XLSX.utils.book_append_sheet(wb, wsTickets, 'Números');
+
+            XLSX.writeFile(wb, 'rifa-' + (appData.settings.raffle_date || 'export') + '.xls');
         }
 
         // Iniciar App
