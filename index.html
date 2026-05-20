@@ -188,13 +188,13 @@
 
         <!-- Cuadrícula de Números -->
         <div class="flex justify-end mb-4">
-            <button onclick="exportToExcel()"
+            <button onclick="showExportModal('excel')"
                 class="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2 mr-2">
-                📥 Exportar Excel
+                📊 Exportar Excel
             </button>
-            <button onclick="exportToImage()"
+            <button onclick="showExportModal('image')"
                 class="bg-green-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition flex items-center gap-2">
-                📥 Exportar Imagen
+                🖼️ Exportar Imagen
             </button>
         </div>
         <div id="ticketGrid" class="grid-numbers">
@@ -283,6 +283,27 @@
                 <button onclick="clearTicket()"
                     class="w-full bg-red-50 text-red-600 py-2 rounded-lg font-bold hover:bg-red-100 transition">
                     Liberar Número
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Confirmación de Exportación -->
+    <div id="exportModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-xl shadow-2xl max-w-sm w-full p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">¿Exportar?</h3>
+                <button onclick="closeExportModal()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            <p id="exportModalText" class="text-gray-600 mb-6">Se descargará un archivo con todos los datos de la rifa.</p>
+            <div class="flex flex-col gap-2">
+                <button onclick="confirmExport()"
+                    class="w-full bg-green-600 text-white py-2 rounded-lg font-bold hover:bg-green-700 transition">
+                    Exportar
+                </button>
+                <button onclick="closeExportModal()"
+                    class="w-full bg-gray-200 text-gray-700 py-2 rounded-lg font-bold hover:bg-gray-300 transition">
+                    Cancelar
                 </button>
             </div>
         </div>
@@ -443,6 +464,32 @@
         window.onclick = function (event) {
             const modal = document.getElementById('modal');
             if (event.target == modal) closeModal();
+            const exportModal = document.getElementById('exportModal');
+            if (event.target == exportModal) closeExportModal();
+        }
+
+        let pendingExport = null;
+
+        function showExportModal(type) {
+            pendingExport = type;
+            const modalText = document.getElementById('exportModalText');
+            if (type === 'excel') {
+                modalText.textContent = 'Se descargará un archivo Excel con todos los datos de la rifa.';
+            } else if (type === 'image') {
+                modalText.textContent = 'Se descargará una imagen con la cuadrícula de la rifa.';
+            }
+            document.getElementById('exportModal').classList.remove('hidden');
+        }
+
+        function closeExportModal() {
+            document.getElementById('exportModal').classList.add('hidden');
+            pendingExport = null;
+        }
+
+        function confirmExport() {
+            if (pendingExport === 'excel') exportToExcel();
+            else if (pendingExport === 'image') exportToImage();
+            closeExportModal();
         }
 
         function renderExportGrid() {
@@ -560,7 +607,7 @@
             wsTickets['!cols'] = [{ wch: 10 }, { wch: 12 }, { wch: 30 }, { wch: 20 }];
             XLSX.utils.book_append_sheet(wb, wsTickets, 'Números');
 
-            XLSX.writeFile(wb, 'rifa-' + (appData.settings.raffle_date || 'export') + '.xls');
+            XLSX.writeFile(wb, 'rifa-' + (appData.settings.raffle_date || 'export') + '.xlsx');
         }
 
         // Iniciar App
